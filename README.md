@@ -26,6 +26,31 @@ Creates and stores a **Markdown rendition** for every document in Alfresco Repos
 3. Restart Alfresco Repository
 4. Ensure Transform Service is configured (both Community and Enterprise versions are accepted)
 
+For instance, for a **Docker Deployment** with [https://github.com/Alfresco/alfresco-docker-installer/](https://github.com/Alfresco/alfresco-docker-installer/):
+
+1. Add the Markdown TEngine reference to Alfresco Configuration
+
+```yaml
+    alfresco:
+        environment:
+            JAVA_OPTS : '
+                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/
+                -DlocalTransform.md.url=http://transform-md:8090/
+            '
+```
+
+2. Add the Markdown TEngine service
+
+```yaml
+    # Requires local Ollama running with "llava" model pulled
+    transform-md:
+        image: docker.io/angelborroy/alf-tengine-convert2md
+        environment:
+          SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+```
+
+3. Copy the `markdown-rendition-0.8.0.jar` to `alfresco/modules/jars` deployment folder
+
 ## How it works in the Repository
 
 - Triggers on either:
