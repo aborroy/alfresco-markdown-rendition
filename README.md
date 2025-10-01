@@ -53,13 +53,13 @@ For instance, for a **Docker Deployment** with [https://github.com/Alfresco/alfr
 
 ## How it works in the Repository
 
-- Triggers on either:
+- Triggers on either
   - Rendition path: fires when a child association `rn:rendition/cm:pdf` is created
   - Content path: fires on content create/update when the **original node** has mimetype `application/pdf`
 
 - Transform
   - Uses the Alfresco Transform Service to convert PDF to Markdown
-  - Requires a Transform Engine capable of `application/pdf → text/markdown` (like `alf-tengine-convert2md`)
+  - Requires a Transform Engine capable of `application/pdf TO text/markdown` (like `alf-tengine-convert2md`)
 
 - Execution model
   - Work is queued *within the current transaction* and executed *post-commit* on a background thread
@@ -72,7 +72,7 @@ For instance, for a **Docker Deployment** with [https://github.com/Alfresco/alfr
 ## Compatibility
 
 - Repository: Alfresco Content Services **25.x** (Community & Enterprise)
-- Transform*: Any TEngine advertising `application/pdf → text/markdown`
+- Transform: Any TEngine advertising `application/pdf → text/markdown`
 - Clients: Share / ADF / Public REST will list and retrieve the `cm:markdown` rendition
 
 ## Verifying
