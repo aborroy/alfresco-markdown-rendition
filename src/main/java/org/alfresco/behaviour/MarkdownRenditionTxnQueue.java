@@ -31,13 +31,10 @@ public class MarkdownRenditionTxnQueue implements TransactionListener {
         final List<Job> jobs = new ArrayList<>(jobSet);
         jobSet.clear();
 
+        // Submit jobs asynchronously. CallerRunsPolicy provides automatic backpressure
+        // by executing rejected tasks in the calling thread when the pool is saturated.
         for (Job job : jobs) {
-            try {
-                taskExecutor.execute(() -> runJob(job));
-            } catch (TaskRejectedException e) {
-                LOGGER.error("Task executor queue full. {} jobs lost.", jobs.size(), e);
-                runJob(job);
-            }
+            taskExecutor.execute(() -> runJob(job));
         }
     }
 
