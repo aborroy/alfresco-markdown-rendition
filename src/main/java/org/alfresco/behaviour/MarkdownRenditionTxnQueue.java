@@ -1,15 +1,19 @@
 package org.alfresco.behaviour;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.alfresco.repo.transaction.*;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.transaction.TransactionService;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.TaskRejectedException;
 
 import java.util.*;
 
 public class MarkdownRenditionTxnQueue implements TransactionListener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRenditionTxnQueue.class);
     private static final String KEY_JOBS = MarkdownRenditionTxnQueue.class.getName() + ".jobs";
 
     private TransactionService transactionService;
@@ -23,18 +27,34 @@ public class MarkdownRenditionTxnQueue implements TransactionListener {
 
     @Override
     public void afterCommit() {
-        final List<Job> jobs = new ArrayList<>(TransactionalResourceHelper.getSet(KEY_JOBS));
+        Set<Job> jobSet = TransactionalResourceHelper.getSet(KEY_JOBS);
+        final List<Job> jobs = new ArrayList<>(jobSet);
+        jobSet.clear();
 
-        taskExecutor.execute(() -> jobs.forEach(job ->
-                AuthenticationUtil.runAsSystem(() -> {
-                    transactionService.getRetryingTransactionHelper()
-                            .doInTransaction(() -> {
-                                markdownCreator.ensureMarkdownRendition(job.original, job.pdfSource);
-                                return null;
-                            }, false, true);
-                    return null;
-                })
-        ));
+        for (Job job : jobs) {
+            try {
+                taskExecutor.execute(() -> runJob(job));
+            } catch (TaskRejectedException e) {
+                LOGGER.error("Task executor queue full. {} jobs lost.", jobs.size(), e);
+                runJob(job);
+            }
+        }
+    }
+
+    private void runJob(Job job) {
+        AuthenticationUtil.runAsSystem(() -> {
+            try {
+                transactionService.getRetryingTransactionHelper()
+                        .doInTransaction(() -> {
+                            markdownCreator.ensureMarkdownRendition(job.original, job.pdfSource);
+                            return null;
+                        }, false, true);
+            } catch (Exception e) {
+                LOGGER.error("Failed to create markdown rendition for {} from {}",
+                        job.original, job.pdfSource, e);
+            }
+            return null;
+        });
     }
 
     @Override

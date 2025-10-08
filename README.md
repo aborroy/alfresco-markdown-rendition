@@ -17,7 +17,6 @@ Creates and stores a **Markdown rendition** for every document in Alfresco Repos
   - Child node has aspect: `rn:rendition`
   - Mimetype: `text/markdown`
 - Runs *asynchronously after commit* (does not block user transactions)
-- Idempotent: won’t create duplicates if `cm:markdown` already exists
 
 ## Installation
 

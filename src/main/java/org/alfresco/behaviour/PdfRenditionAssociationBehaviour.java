@@ -7,6 +7,8 @@ import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.namespace.QName;
 
+import static org.alfresco.model.RenditionModel.ASSOC_RENDITION;
+
 public class PdfRenditionAssociationBehaviour implements NodeServicePolicies.OnCreateChildAssociationPolicy {
 
     private static final String RN_URI = "http://www.alfresco.org/model/rendition/1.0";
@@ -18,7 +20,7 @@ public class PdfRenditionAssociationBehaviour implements NodeServicePolicies.OnC
     public void init() {
         policyComponent.bindAssociationBehaviour(
                 NodeServicePolicies.OnCreateChildAssociationPolicy.QNAME,
-                this,
+                ASSOC_RENDITION,
                 new JavaBehaviour(this, "onCreateChildAssociation", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
         );
     }

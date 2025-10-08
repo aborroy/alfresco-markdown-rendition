@@ -41,6 +41,8 @@
     <bean id="markdownRenditionCreator"
           class="org.alfresco.behaviour.MarkdownRenditionCreator">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
+        <property name="images" value="${markdown.images}"/>
+        <property name="language" value="${markdown.language}"/>
     </bean>
 
     <!-- Behaviour A: reacts to creation of cm:pdf rendition -->
