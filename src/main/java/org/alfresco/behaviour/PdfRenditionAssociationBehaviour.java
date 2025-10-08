@@ -20,7 +20,7 @@ public class PdfRenditionAssociationBehaviour implements NodeServicePolicies.OnC
     public void init() {
         policyComponent.bindAssociationBehaviour(
                 NodeServicePolicies.OnCreateChildAssociationPolicy.QNAME,
-                ASSOC_RENDITION,
+                this,
                 new JavaBehaviour(this, "onCreateChildAssociation", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
         );
     }
